@@ -5,26 +5,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pamdatabase.Data.entity.Mahasiswa
 import com.example.pamdatabase.repository.RepositoryMhs
+import com.example.pamdatabase.ui.navigation.DestinasiDetail
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class DetailMhsViewModel(
     savedStateHandle: SavedStateHandle,
     private val repositoryMhs: RepositoryMhs,
-) : ViewModel () {
-    private val nim: String = checkNotNull(savedStateHandle[DestinasiDetail.NIM])
+) : ViewModel() {
+    private val _nim: String = checkNotNull(savedStateHandle[DestinasiDetail.NIM])
 
-    val detailUiState: StateFlow<DetailMhsUiState> = repositoryMhs.getMhs(_nim)
+    val detailUiState: StateFlow<DetailUiState> = repositoryMhs.getMhs(_nim)
         .filterNotNull()
         .map {
-            DetailUiState (
+            DetailUiState(
                 detailUiEvent = it.toDetailUiEvent(),
                 isLoading = false,
             )
@@ -37,7 +38,7 @@ class DetailMhsViewModel(
             emit(
                 DetailUiState(
                     isLoading = false,
-                    isError =  true,
+                    isError = true,
                     errorMessage = it.message ?: "Terjadi Kelasahan",
                 )
             )
@@ -49,23 +50,31 @@ class DetailMhsViewModel(
                 isLoading = true,
             ),
         )
+
+    fun deleteMhs() {
+        detailUiState.value.detailUiEvent.toMahasiswaEntity().let {
+            viewModelScope.launch {
+                repositoryMhs.deleteMhs(it)
+            }
+        }
+    }
 }
 
-
-data class DetailMhsViewModel(
+data class DetailUiState(
     val detailUiEvent: MahasiswaEvent = MahasiswaEvent(),
     val isLoading: Boolean = false,
     val isError: Boolean = false,
     val errorMessage: String = ""
 ) {
-    val isUiEventEmpty: Boolean
-        get() = detailUiEvent == MahasiswaEvent()
-
-    val isUiEventEmpty: Boolean
+    // Perbaiki penghapusan duplikasi properti isUiEventEmpty
+    val isUiEventNotEmpty: Boolean  // Properti untuk memeriksa jika detailUiEvent tidak kosong
         get() = detailUiEvent != MahasiswaEvent()
+
+    val isUiEventEmpty: Boolean  // Properti untuk memeriksa jika detailUiEvent kosong
+        get() = detailUiEvent == MahasiswaEvent()
 }
 
-fun Mahasiswa.toDetailUiEvent () : MahasiswaEvent {
+fun Mahasiswa.toDetailUiEvent(): MahasiswaEvent {
     return MahasiswaEvent(
         nim = nim,
         nama = nama,
