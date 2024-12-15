@@ -1,9 +1,9 @@
 package com.example.pamdatabase.ui.view.mahasiswa
 
-import android.provider.ContactsContract.Intents.Insert
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -67,9 +67,9 @@ fun InsertMhsView(
             TopAppBar(
                 onBack = onBack,
                 showBackButton = true,
-                judul = "Tambah Mahasiswa"
+                judul = "Tambah Mahasiswa",
+                modifier = Modifier
             )
-
             //isi body
             InsertBodyMhs(
                 uiState = uiState,
@@ -241,3 +241,4 @@ fun FormMahasiswa(
         )
     }
 }
+

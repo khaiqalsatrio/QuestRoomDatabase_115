@@ -18,11 +18,8 @@ class UpdateMhsViewModel(
     private val repositoryMhs: RepositoryMhs
 ) : ViewModel() {
 
-    // Perbaikan: pastikan MhsUiState memiliki konstruktor default yang valid
-    var updateUiState by mutableStateOf(MhsUiState)
-        private set
+    var updateUiState by mutableStateOf(MhsUiState())
 
-    // Perbaikan: pastikan objek DestinasiEdit atau DestinasiDetail digunakan dengan benar
     private val _nim: String = checkNotNull(saveStateHandle[DestinasiDetail.NIM]) // Ganti DestinasiEdit menjadi DestinasiDetail
 
     init {
@@ -63,29 +60,31 @@ class UpdateMhsViewModel(
                 try {
                     repositoryMhs.updateMhs(currentEvent.toMahasiswaEntity())
                     updateUiState = updateUiState.copy(
-                        snackBarMessage = "Data berhasil diupdate",
+                        snackbarMessage = "Data Berhasil Diupdate",
                         mahasiswaEvent = MahasiswaEvent(),
                         isEntryValid = FormErrorState()
                     )
-                    println("snackBarMessage diatur: ${updateUiState.snackBarMessage}")
+                    println("snackBarMessage diatur: ${updateUiState.snackbarMessage}")
                 } catch (e: Exception) {
                     updateUiState = updateUiState.copy(
-                        snackBarMessage = "Data gagal diupdate"
+                        snackbarMessage = "Data gagal diupdate"
                     )
                 }
             }
         } else {
             updateUiState = updateUiState.copy(
-                snackBarMessage = "Data gagal diupdate"
+                snackbarMessage = "Data gagal diupdate"
             )
         }
     }
 
     fun resetSnackBarMessage() {
-        updateUiState = updateUiState.copy(snackBarMessage = null)
+        updateUiState = updateUiState.copy(snackbarMessage = null)
     }
 }
 
 fun Mahasiswa.toUiStateMhs(): MhsUiState = MhsUiState(
     mahasiswaEvent = this.toDetailUiEvent(),
 )
+
+
